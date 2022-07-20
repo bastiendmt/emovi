@@ -1,6 +1,6 @@
 import { Twemoji } from "@teuteuf/react-emoji-render";
 import { Movie, pickRandomMovie, allMovies } from "./movies";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import * as base64 from "base-64";
@@ -64,12 +64,23 @@ function MovieCard({ movie }: { movie: Movie }) {
   );
 }
 
+function getSavedGuesses() {
+  const guesses: Record<
+    string,
+    { movieGuessed: boolean; invalidGuessIds: string[] } | undefined
+  > = JSON.parse(localStorage.getItem("guesses") ?? "{}");
+
+  return guesses;
+}
+
 function GuessAEmovi({
   emoviToGuess,
   dailyNumber,
+  dayString,
 }: {
   emoviToGuess: EmoviToGuess;
   dailyNumber?: number;
+  dayString?: string;
 }) {
   const movieToGuess = useMemo(() => {
     return emoviToGuess && allMovies.find((m) => m.id === emoviToGuess.id);
@@ -89,8 +100,20 @@ function GuessAEmovi({
     label: string;
   } | null>(null);
 
-  const [invalidGuessIds, setInvalidGuessIds] = useState<string[]>([]);
-  const [movieGuessed, setMovieGuessed] = useState<boolean>(false);
+  const initialSavedGuess = useMemo(() => {
+    if (!dayString) {
+      return undefined;
+    }
+
+    const savedGuesses = getSavedGuesses();
+    return savedGuesses[dayString];
+  }, [dayString]);
+  const [invalidGuessIds, setInvalidGuessIds] = useState<string[]>(
+    initialSavedGuess?.invalidGuessIds ?? []
+  );
+  const [movieGuessed, setMovieGuessed] = useState<boolean>(
+    initialSavedGuess?.movieGuessed ?? false
+  );
   const movieFailed = invalidGuessIds.length >= MAX_TRIES;
   const handleGetHint = useCallback(() => {
     setInvalidGuessIds((prev) => [...prev, ""]);
@@ -109,6 +132,26 @@ function GuessAEmovi({
       setSelectedOption(null);
     }
   }, [emoviToGuess, selectedOption]);
+
+  useEffect(() => {
+    if (!dayString) {
+      return;
+    }
+
+    const guesses = getSavedGuesses();
+
+    if (!guesses[dayString]) {
+      guesses[dayString] = {
+        movieGuessed: false,
+        invalidGuessIds: [],
+      };
+    }
+
+    guesses[dayString]!.movieGuessed = movieGuessed;
+    guesses[dayString]!.invalidGuessIds = invalidGuessIds;
+
+    localStorage.setItem("guesses", JSON.stringify(guesses));
+  }, [dayString, invalidGuessIds, movieGuessed]);
 
   const shareText = useMemo(() => {
     if (!emoviToGuess || !movieToGuess) {
@@ -274,7 +317,11 @@ function DailyEmoviRoute() {
   return emoviToGuess ? (
     <div className="flex flex-col gap-2">
       <p className="text-center font-bold text-lg">Emovi #{dailyNumber}</p>
-      <GuessAEmovi emoviToGuess={emoviToGuess} dailyNumber={dailyNumber} />
+      <GuessAEmovi
+        emoviToGuess={emoviToGuess}
+        dailyNumber={dailyNumber}
+        dayString={dayString}
+      />
     </div>
   ) : (
     <div className="flex flex-col gap-2">
