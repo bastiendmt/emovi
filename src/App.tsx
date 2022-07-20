@@ -19,7 +19,7 @@ function MovieCard({ movie }: { movie: Movie }) {
   return (
     <div className="flex flex-col items-center">
       <img className="max-h-64" src={movie.image} alt="Movie's poster" />
-      <p className="text-lg font-bold text-center">{movie.fullTitle}</p>
+      <p className="text-lg font-bold text-center">{movie.title}</p>
     </div>
   );
 }
@@ -196,7 +196,7 @@ function GuessAEmovi() {
               className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
               onClick={() => handleTryGuess(movie.id)}
             >
-              {movie.fullTitle}
+              {movie.title}
             </button>
           ))}
         </div>
