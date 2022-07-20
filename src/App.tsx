@@ -158,18 +158,18 @@ function GuessAEmovi({
         )}
       </div>
       {!movieGuessed && !movieFailed ? (
-        <div className="flex flex-col gap-2 items-center w-full">
+        <div className="flex flex-col gap-4 items-center w-full">
           <Select
             className="w-full"
             options={selectOptions}
             onChange={setSelectedOption}
             value={selectedOption}
           />
-          <div className="flex flex-col gap-1 w-full">
+          <div className="flex flex-col gap-2 w-full">
             <button
               onClick={handleGuess}
               disabled={!selectedOption}
-              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-2 px-4 rounded basis-1/2"
+              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-4 px-4 rounded basis-1/2"
             >
               Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
             </button>
@@ -205,7 +205,7 @@ function GuessAEmovi({
                   to="/"
                   className="text-blue-500 hover:text-blue-700 font-bold"
                 >
-                  Guess a new Emovi everyday!
+                  Go to the daily Emovi
                 </Link>
                 <p>or</p>
               </>
@@ -214,12 +214,12 @@ function GuessAEmovi({
               to="/make"
               className="text-blue-500 hover:text-blue-700 font-bold"
             >
-              Create your own Emovi!
+              Create your own Emovi
             </Link>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 text-center">
+        <div className="flex flex-col gap-2 text-center w-full">
           {movieToGuess && <MovieCard movie={movieToGuess} />}
           <div>
             {movieGuessed ? (
@@ -231,7 +231,7 @@ function GuessAEmovi({
               <p>You didn't found the movie...</p>
             )}
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 w-full">
             <CopyToClipboard
               text={shareText}
               onCopy={() => toast("Result copied to clipboard")}
@@ -326,11 +326,11 @@ function MakeAEmoviRoute() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 w-full">
         <MovieCard movie={movieToGuess} />
         {!validated && (
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
             onClick={() => {
               setMovieToGuess(pickRandomMovie());
             }}
@@ -380,7 +380,7 @@ function MakeAEmoviRoute() {
             }}
           />
         ) : (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 w-full text-center">
             <CopyToClipboard
               text={shareText}
               onCopy={() => toast("Emovi copied to clipboard")}
