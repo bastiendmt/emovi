@@ -62,6 +62,7 @@ function App() {
         )}
         {!validated ? (
           <Picker
+            set="twitter"
             showSkinTones={false}
             showPreview
             onSelect={(e: any) => {
