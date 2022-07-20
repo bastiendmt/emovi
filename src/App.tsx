@@ -92,6 +92,9 @@ function GuessAEmovi({
   const [invalidGuessIds, setInvalidGuessIds] = useState<string[]>([]);
   const [movieGuessed, setMovieGuessed] = useState<boolean>(false);
   const movieFailed = invalidGuessIds.length >= MAX_TRIES;
+  const handleGetHint = useCallback(() => {
+    setInvalidGuessIds((prev) => [...prev, ""]);
+  }, []);
   const handleGuess = useCallback(() => {
     if (!selectedOption) {
       return;
@@ -162,13 +165,22 @@ function GuessAEmovi({
             onChange={setSelectedOption}
             value={selectedOption}
           />
-          <button
-            onClick={handleGuess}
-            disabled={!selectedOption}
-            className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
-          >
-            Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
-          </button>
+          <div className="flex flex-col gap-1 w-full">
+            <button
+              onClick={handleGuess}
+              disabled={!selectedOption}
+              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-2 px-4 rounded basis-1/2"
+            >
+              Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
+            </button>
+            <button
+              onClick={handleGetHint}
+              disabled={invalidGuessIds.length >= MAX_TRIES - 1}
+              className="bg-red-500 hover:bg-red-700 disabled:bg-gray-300 text-white font-bold py-2 px-4 rounded basis-1/2"
+            >
+              Get a hint...
+            </button>
+          </div>
           {invalidGuessIds.length > 0 && (
             <div className="w-full flex justify-start items-start">
               <div className="flex-shrink-0 basis-32 font-bold whitespace-nowrap">
