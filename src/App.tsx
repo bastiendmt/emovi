@@ -72,7 +72,7 @@ function GuessAEmovi({
   const selectOptions = useMemo(() => {
     return top250movies.map((m) => ({
       value: m.id,
-      label: m.fullTitle,
+      label: m.title,
     }));
   }, []);
 
@@ -140,8 +140,8 @@ function GuessAEmovi({
             value={selectedOption}
           />
           <button
-            disabled={!selectedOption}
             onClick={handleGuess}
+            disabled={!selectedOption}
             className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
           >
             Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
@@ -162,12 +162,23 @@ function GuessAEmovi({
               <div className="col-span-2">{movieToGuess?.crew}</div>
             </div>
           )}
-          <div className="mt-16">
+          <div className="mt-16 flex flex-col gap-2 items-center">
+            {!dailyNumber && (
+              <>
+                <Link
+                  to="/"
+                  className="text-blue-500 hover:text-blue-700 font-bold"
+                >
+                  Guess a new Emovi everyday!
+                </Link>
+                <p>or</p>
+              </>
+            )}
             <Link
               to="/make"
-              className="text-blue-500 hover:text-blue-700 font-bold py-2 px-4 rounded w-full"
+              className="text-blue-500 hover:text-blue-700 font-bold"
             >
-              Create your Emovi
+              Create your own Emovi!
             </Link>
           </div>
         </div>
@@ -225,7 +236,10 @@ function DailyEmoviRoute() {
     ) + 1;
   const emoviToGuess = DAILY_EMOVI[dayString];
   return emoviToGuess ? (
-    <GuessAEmovi emoviToGuess={emoviToGuess} dailyNumber={dailyNumber} />
+    <div className="flex flex-col gap-2">
+      <p className="text-center font-bold text-lg">Emovi #{dailyNumber}</p>
+      <GuessAEmovi emoviToGuess={emoviToGuess} dailyNumber={dailyNumber} />
+    </div>
   ) : (
     <div className="flex flex-col gap-2">
       <p className="text-center font-bold">No daily emovi for today!</p>
@@ -391,7 +405,7 @@ function GuessAEmoviRoute() {
 
 function App() {
   return (
-    <div className="flex flex-auto justify-center p-1">
+    <div className="flex flex-auto justify-center">
       <ToastContainer
         hideProgressBar
         position="top-center"
@@ -403,10 +417,17 @@ function App() {
         style={{ width: 500, maxWidth: "100%" }}
       />
       <div className="flex flex-col items-center justify-center gap-2 mb-2 max-w-lg w-full">
-        <header className="text-2xl font-extrabold text-center p-4">
-          <Twemoji text="🎬 EMOVI 🎥" options={{ className: "inline-block" }} />
+        <header className="text-4xl font-bold text-center w-full border-b-2 border-gray-200">
+          <div className="w-full my-1">
+            <Link to="/">
+              <Twemoji
+                text="🎬 EMOVI 🎥"
+                options={{ className: "inline-block" }}
+              />
+            </Link>
+          </div>
         </header>
-        <div className="flex-grow w-full">
+        <div className="flex-grow w-full p-1">
           <Routes>
             <Route path="/" element={<DailyEmoviRoute />} />
             <Route path="/make" element={<MakeAEmoviRoute />} />
