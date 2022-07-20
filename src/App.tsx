@@ -1,5 +1,5 @@
 import { Twemoji } from "@teuteuf/react-emoji-render";
-import { Movie, pickRandomMovie, top250movies } from "./top250movies";
+import { Movie, pickRandomMovie, allMovies } from "./movies";
 import { useCallback, useMemo, useState } from "react";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
@@ -58,7 +58,7 @@ const DAILY_EMOVI: Record<string, EmoviToGuess> = {
 function MovieCard({ movie }: { movie: Movie }) {
   return (
     <div className="flex flex-col items-center">
-      <img className="max-h-64" src={movie.image} alt="Movie's poster" />
+      <img className="h-64" src={movie.image} alt="Movie's poster" />
       <p className="text-lg font-bold text-center">{movie.title}</p>
     </div>
   );
@@ -72,13 +72,13 @@ function GuessAEmovi({
   dailyNumber?: number;
 }) {
   const movieToGuess = useMemo(() => {
-    return emoviToGuess && top250movies.find((m) => m.id === emoviToGuess.id);
+    return emoviToGuess && allMovies.find((m) => m.id === emoviToGuess.id);
   }, [emoviToGuess]);
 
   console.log("emoviToGuess", emoviToGuess);
 
   const selectOptions = useMemo(() => {
-    return top250movies.map((m) => ({
+    return allMovies.map((m) => ({
       value: m.id,
       label: m.title,
     }));
