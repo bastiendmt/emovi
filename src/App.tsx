@@ -8,7 +8,7 @@ import * as utf8 from "utf8";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link, Route, Routes, useParams } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useParams } from "react-router-dom";
 import Select from "react-select";
 import { DateTime, Interval } from "luxon";
 
@@ -370,6 +370,17 @@ function GuessAEmoviRoute() {
         : undefined,
     [encodedEmovi]
   );
+  const dayString = getDayString();
+  const dailyEmovi = DAILY_EMOVI[dayString];
+
+  if (
+    dailyEmovi &&
+    emoviToGuess &&
+    dailyEmovi.id === emoviToGuess.id &&
+    dailyEmovi.emojiText === emoviToGuess.emojiText
+  ) {
+    return <Navigate to="/" />;
+  }
 
   return emoviToGuess ? (
     <GuessAEmovi emoviToGuess={emoviToGuess} />
