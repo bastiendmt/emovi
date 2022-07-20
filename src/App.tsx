@@ -380,7 +380,7 @@ function GuessAEmoviRoute() {
 
 function App() {
   return (
-    <div className="flex flex-auto justify-center">
+    <div className="flex flex-auto justify-center p-1">
       <ToastContainer
         hideProgressBar
         position="top-center"
