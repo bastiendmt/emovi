@@ -33,17 +33,18 @@ interface EmoviToGuess {
 const START_DATE = DateTime.fromISO("2022-07-17");
 
 const DAILY_EMOVI: Record<string, EmoviToGuess> = {
-  "2022-07-11": {
-    id: "tt0101414",
-    emojiText: "🌹👸🧌",
-  },
-  "2022-07-13": { id: "tt0167260", emojiText: "💍🌋🧙‍♂️👑" },
-  "2022-07-14": { id: "tt0211915", emojiText: "👩‍🦰🎠🗼🥖🇫🇷" },
-  "2022-07-15": { id: "tt1745960", emojiText: "✈️🇺🇸🕶️" },
-  "2022-07-16": { id: "tt0892769", emojiText: "👨‍🏫🐉" },
   "2022-07-17": { id: "tt0114709", emojiText: "🥔🤠👨‍🚀🐊🐖🐶" },
-  "2022-07-18": { id: "tt0103639", emojiText: "🧞‍♂️🪔🐒👸🤴" },
-  "2022-07-19": { id: "tt0109830", emojiText: "🏃🍫🦐" },
+  "2022-07-18": { id: "tt0167260", emojiText: "💍🌋🧙‍♂️👑" },
+  "2022-07-19": { id: "tt0103639", emojiText: "🧞‍♂️🪔🐒👸🤴" },
+  "2022-07-20": { id: "tt0211915", emojiText: "👩‍🦰🎠🗼🥖🇫🇷" },
+  "2022-07-21": { id: "tt1745960", emojiText: "✈️🇺🇸🕶️" },
+  "2022-07-22": { id: "tt0109830", emojiText: "🏃🍫🦐" },
+  "2022-07-23": { id: "tt0120382", emojiText: "🙍‍♂️🎥⛵😨📺" },
+  "2022-07-24": { id: "tt4633694", emojiText: "🕷️🦸🦹🦸‍♂️🦹‍♂️🦸‍♀️🦹‍♀️🎨✏️" },
+  "2022-07-25": { id: "tt0090605", emojiText: "👽🤰🩸😱" },
+  "2022-07-26": { id: "tt0062622", emojiText: "👁️🖥️🛰️🚀" },
+  "2022-07-27": { id: "tt0054215", emojiText: "🔪🚿🧓" },
+  "2022-07-28": { id: "tt0101414", emojiText: "🌹👸🧌" },
 };
 
 function MovieCard({ movie }: { movie: Movie }) {
@@ -161,6 +162,14 @@ function GuessAEmovi({
               <div className="col-span-2">{movieToGuess?.crew}</div>
             </div>
           )}
+          <div className="mt-16">
+            <Link
+              to="/make"
+              className="text-blue-500 hover:text-blue-700 font-bold py-2 px-4 rounded w-full"
+            >
+              Create your Emovi
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-2 text-center">
@@ -176,12 +185,6 @@ function GuessAEmovi({
             )}
           </div>
           <div className="flex flex-col gap-1">
-            <Link
-              to="/make"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-            >
-              Create your Emovie!
-            </Link>
             <CopyToClipboard
               text={shareText}
               onCopy={() => toast("Result copied to clipboard")}
@@ -190,9 +193,23 @@ function GuessAEmovi({
               }}
             >
               <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full">
-                Share your result!
+                Share your result
               </button>
             </CopyToClipboard>
+            <Link
+              to="/make"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+            >
+              Create your Emovi
+            </Link>
+            {!dailyNumber && (
+              <Link
+                to="/"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+              >
+                Go to the daily Emovi
+              </Link>
+            )}
           </div>
         </div>
       )}
@@ -202,10 +219,10 @@ function GuessAEmovi({
 
 function DailyEmoviRoute() {
   const dayString = getDayString();
-  const dailyNumber = Interval.fromDateTimes(
-    START_DATE,
-    DateTime.fromISO(dayString)
-  ).length("day");
+  const dailyNumber =
+    Interval.fromDateTimes(START_DATE, DateTime.fromISO(dayString)).length(
+      "day"
+    ) + 1;
   const emoviToGuess = DAILY_EMOVI[dayString];
   return emoviToGuess ? (
     <GuessAEmovi emoviToGuess={emoviToGuess} dailyNumber={dailyNumber} />
@@ -238,6 +255,12 @@ function MakeAEmoviRoute() {
     () => buildShareUrl({ id: movieToGuess.id, emojiText }),
     [emojiText, movieToGuess.id]
   );
+
+  const handleNewEmovi = useCallback(() => {
+    setMovieToGuess(pickRandomMovie());
+    setEmojiText("");
+    setValidated(false);
+  }, []);
 
   const shareText = useMemo(() => {
     return [
@@ -283,13 +306,13 @@ function MakeAEmoviRoute() {
                   setEmojiText("");
                 }}
               >
-                Clear!
+                Clear
               </button>
               <button
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                 onClick={() => setValidated(true)}
               >
-                Validate!
+                Validate
               </button>
             </div>
           )}
@@ -304,7 +327,7 @@ function MakeAEmoviRoute() {
             }}
           />
         ) : (
-          <div>
+          <div className="flex flex-col gap-1">
             <CopyToClipboard
               text={shareText}
               onCopy={() => toast("Emovi copied to clipboard")}
@@ -312,10 +335,22 @@ function MakeAEmoviRoute() {
                 format: "text/plain",
               }}
             >
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Share my Emovi!
+              <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Share my Emovi
               </button>
             </CopyToClipboard>
+            <button
+              onClick={handleNewEmovi}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Create another Emovi
+            </button>
+            <Link
+              to="/"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Go to the daily Emovi
+            </Link>
           </div>
         )}
       </div>
