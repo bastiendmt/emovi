@@ -28,19 +28,27 @@ export function getDayString(shiftDayCount?: number) {
 interface EmoviToGuess {
   id: Movie["id"];
   emojiText: string;
+  author?: string;
 }
 
 const START_DATE = DateTime.fromISO("2022-07-17");
 
 const DAILY_EMOVI: Record<string, EmoviToGuess> = {
-  "2022-07-17": { id: "tt0114709", emojiText: "🥔🤠👨‍🚀🐊🐖🐶" },
+  "2022-07-17": {
+    id: "tt0114709",
+    emojiText: "🥔🤠👨‍🚀🐊🐖🐶",
+    author: "teuteuf",
+  },
   "2022-07-18": { id: "tt0167260", emojiText: "💍🌋🧙‍♂️👑" },
   "2022-07-19": { id: "tt0103639", emojiText: "🧞‍♂️🪔🐒👸🤴" },
   "2022-07-20": { id: "tt0211915", emojiText: "👩‍🦰🎠🗼🥖🇫🇷" },
   "2022-07-21": { id: "tt1745960", emojiText: "✈️🇺🇸🕶️" },
   "2022-07-22": { id: "tt0109830", emojiText: "🏃🍫🦐" },
   "2022-07-23": { id: "tt0120382", emojiText: "🙍‍♂️🎥⛵😨📺" },
-  "2022-07-24": { id: "tt4633694", emojiText: "🕷️🦸🦹🦸‍♂️🦹‍♂️🦸‍♀️🦹‍♀️🎨✏️" },
+  "2022-07-24": {
+    id: "tt4633694",
+    emojiText: "🕷️🦸🦹🦸‍♂️🦹‍♂️🦸‍♀️🦹‍♀️🎨✏️",
+  },
   "2022-07-25": { id: "tt0090605", emojiText: "👽🤰🩸😱" },
   "2022-07-26": { id: "tt0062622", emojiText: "👁️🖥️🛰️🚀" },
   "2022-07-27": { id: "tt0054215", emojiText: "🔪🚿🧓" },
@@ -122,15 +130,30 @@ function GuessAEmovi({
 
   return (
     <div className="flex flex-col items-center gap-2 w-full">
-      <p className="text-lg font-bold text-center">Guess this movie:</p>
-      {emoviToGuess && (
-        <p className="text-xl text-center">
-          <Twemoji
-            text={emoviToGuess.emojiText}
-            options={{ className: "inline-block" }}
-          />
-        </p>
-      )}
+      <div className="flex flex-col items-center w-full">
+        <p className="text-lg font-bold text-center">Guess this movie:</p>
+        {emoviToGuess && (
+          <p className="text-xl text-center">
+            <Twemoji
+              text={emoviToGuess.emojiText}
+              options={{ className: "inline-block" }}
+            />
+          </p>
+        )}
+        {emoviToGuess.author && (
+          <p className="text-center">
+            by{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 font-semibold"
+              href={`https://twitter.com/${emoviToGuess.author}`}
+            >
+              {emoviToGuess.author}
+            </a>
+          </p>
+        )}
+      </div>
       {!movieGuessed && !movieFailed ? (
         <div className="flex flex-col gap-2 items-center w-full">
           <Select
@@ -244,12 +267,15 @@ function DailyEmoviRoute() {
     <div className="flex flex-col gap-2">
       <p className="text-center font-bold">No daily emovi for today!</p>
       <p className="text-center">
-        <Link className="text-blue-600 font-semibold" to="/make">
+        <Link
+          className="text-blue-500 hover:text-blue-700 font-bold"
+          to="/make"
+        >
           Create your own Emovi
         </Link>{" "}
         or check{" "}
         <a
-          className="text-blue-600 font-semibold"
+          className="text-blue-500 hover:text-blue-700 font-bold"
           href="https://twitter.com/search/?q=%23MyEmovi"
         >
           #MyEmovi
@@ -365,6 +391,14 @@ function MakeAEmoviRoute() {
             >
               Go to the daily Emovi
             </Link>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 font-bold text-center py-4"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSevIwncXHGD4K4yPBHi3Z2P0ynzmqaWZccfCCnzitN5xei54g/viewform?usp=sf_link&hl=en"
+            >
+              Suggest a daily Emovi
+            </a>
           </div>
         )}
       </div>
@@ -456,7 +490,10 @@ function App() {
             </a>
           </div>
           <div className="text-center">
-            <a className="text-blue-600" href="https://twitter.com/teuteuf">
+            <a
+              className="text-blue-500 hover:text-blue-700"
+              href="https://twitter.com/teuteuf"
+            >
               @teuteuf
             </a>
           </div>
