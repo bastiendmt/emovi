@@ -240,7 +240,12 @@ function MakeAEmoviRoute() {
   );
 
   const shareText = useMemo(() => {
-    return ["#Emovi 🎬", "Guess this movie:", emojiText, shareUrl].join("\n");
+    return [
+      "#Emovi 🎬 #MyEmovi",
+      "Guess this movie:",
+      emojiText,
+      shareUrl,
+    ].join("\n");
   }, [emojiText, shareUrl]);
 
   return (
