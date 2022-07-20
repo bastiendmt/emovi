@@ -1,6 +1,6 @@
 import { Twemoji } from "@teuteuf/react-emoji-render";
 import { Movie, pickRandomMovie, top250movies } from "./top250movies";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import * as base64 from "base-64";
@@ -9,6 +9,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, Route, Routes, useParams } from "react-router-dom";
+import Select from "react-select";
 
 interface EmoviToGuess {
   id: string;
@@ -46,7 +47,7 @@ function MakeAEmovi() {
   }, [emojiText, shareUrl]);
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex flex-col items-center gap-2">
         <MovieCard movie={movieToGuess} />
         {!validated && (
@@ -120,6 +121,7 @@ function MakeAEmovi() {
   );
 }
 
+const MAX_TRIES = 3;
 function GuessAEmovi() {
   const { emovi: encodedEmovi } = useParams<{ emovi: string }>();
   const emoviToGuess: EmoviToGuess | undefined = useMemo(
@@ -136,32 +138,35 @@ function GuessAEmovi() {
     return emoviToGuess && top250movies.find((m) => m.id === emoviToGuess.id);
   }, [emoviToGuess]);
 
-  const movieChoices = useMemo(() => {
-    const otherMovies = top250movies.filter((m) => m.id !== movieToGuess?.id);
-    const nineRandomPickedMovies = [...otherMovies]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 9);
+  const selectOptions = useMemo(() => {
+    return top250movies.map((m) => ({
+      value: m.id,
+      label: m.fullTitle,
+    }));
+  }, []);
 
-    if (!movieToGuess) {
-      return [];
-    }
-
-    return [movieToGuess, ...nineRandomPickedMovies].sort(
-      () => 0.5 - Math.random()
-    );
-  }, [movieToGuess]);
+  const [selectedOption, setSelectedOption] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
 
   const [invalidGuessIds, setInvalidGuessIds] = useState<string[]>([]);
   const [movieGuessed, setMovieGuessed] = useState<boolean>(false);
-  const handleTryGuess = (movieId: string) => {
-    if (emoviToGuess && emoviToGuess.id === movieId) {
+  const movieFailed = invalidGuessIds.length >= MAX_TRIES;
+  const handleGuess = useCallback(() => {
+    if (!selectedOption) {
+      return;
+    }
+
+    if (emoviToGuess && emoviToGuess.id === selectedOption?.value) {
       setMovieGuessed(true);
       toast.success("You guessed it!");
     } else {
-      setInvalidGuessIds((prev) => [...prev, movieId]);
+      setInvalidGuessIds((prev) => [...prev, selectedOption?.value]);
       toast.error("Wrong movie!");
+      setSelectedOption(null);
     }
-  };
+  }, [emoviToGuess, selectedOption]);
 
   const shareText = useMemo(() => {
     if (!emoviToGuess || !movieToGuess) {
@@ -171,13 +176,15 @@ function GuessAEmovi() {
     return [
       "#Emovi 🎬",
       emoviToGuess.emojiText,
-      `Guessed in ${invalidGuessIds.length + 1} guesses!`,
+      "🟥".repeat(invalidGuessIds.length) +
+        (movieGuessed ? "🟩" : "") +
+        "⬜".repeat(Math.max(MAX_TRIES - invalidGuessIds.length - 1, 0)),
       buildShareUrl(emoviToGuess),
     ].join("\n");
-  }, [emoviToGuess, invalidGuessIds.length, movieToGuess]);
+  }, [emoviToGuess, invalidGuessIds.length, movieGuessed, movieToGuess]);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 w-full">
       <p className="text-lg font-bold text-center">Guess this movie:</p>
       {emoviToGuess && (
         <p className="text-xl text-center">
@@ -187,25 +194,50 @@ function GuessAEmovi() {
           />
         </p>
       )}
-      {!movieGuessed ? (
-        <div className="flex flex-col items-center gap-1">
-          {movieChoices.map((movie) => (
-            <button
-              key={movie.id}
-              disabled={invalidGuessIds.includes(movie.id)}
-              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
-              onClick={() => handleTryGuess(movie.id)}
-            >
-              {movie.title}
-            </button>
-          ))}
+      {!movieGuessed && !movieFailed ? (
+        <div className="flex flex-col gap-2 items-center w-full">
+          <Select
+            className="w-full"
+            options={selectOptions}
+            onChange={setSelectedOption}
+            value={selectedOption}
+          />
+          <button
+            disabled={!selectedOption}
+            onClick={handleGuess}
+            className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded w-full"
+          >
+            Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
+          </button>
+          {invalidGuessIds.length > 0 && (
+            <div className="w-full flex justify-start items-start">
+              <div className="flex-shrink-0 basis-32 font-bold whitespace-nowrap">
+                Hint #1 - Year:
+              </div>
+              <div className="col-span-2">{movieToGuess?.year}</div>
+            </div>
+          )}
+          {invalidGuessIds.length > 1 && (
+            <div className="w-full flex justify-start items-start">
+              <div className="flex-shrink-0 basis-32 font-bold whitespace-nowrap">
+                Hint #2 - Crew:
+              </div>
+              <div className="col-span-2">{movieToGuess?.crew}</div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-2 text-center">
           {movieToGuess && <MovieCard movie={movieToGuess} />}
           <div>
-            <p>Well done! You guessed the movie!</p>
-            <p>In {invalidGuessIds.length + 1} guesses!</p>
+            {movieGuessed ? (
+              <>
+                <p>Well done! You guessed the movie!</p>
+                <p>In {invalidGuessIds.length + 1} guesses!</p>
+              </>
+            ) : (
+              <p>You didn't found the movie...</p>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <Link
@@ -234,7 +266,7 @@ function GuessAEmovi() {
 
 function App() {
   return (
-    <div>
+    <div className="flex justify-center">
       <ToastContainer
         hideProgressBar
         position="top-center"
@@ -245,7 +277,7 @@ function App() {
         toastClassName="flex justify-center m-2 max-w-full"
         style={{ width: 500, maxWidth: "100%" }}
       />
-      <div className="flex flex-col gap-2 mb-2">
+      <div className="flex flex-col items-center justify-center gap-2 mb-2 max-w-lg w-full">
         <header className="text-2xl font-extrabold text-center p-4">
           <Twemoji text="🎬 EMOVI 🎥" options={{ className: "inline-block" }} />
         </header>
