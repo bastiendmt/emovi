@@ -213,7 +213,7 @@ function DailyEmoviRoute() {
     <div className="flex flex-col gap-2">
       <p className="text-center font-bold">No daily emovi for today!</p>
       <p className="text-center">
-        <Link className="text-blue-600 font-semibold" to="/create">
+        <Link className="text-blue-600 font-semibold" to="/make">
           Create your own Emovi
         </Link>{" "}
         or check{" "}
