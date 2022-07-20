@@ -175,10 +175,11 @@ function GuessAEmovi({
             </button>
             <button
               onClick={handleGetHint}
-              disabled={invalidGuessIds.length >= MAX_TRIES - 1}
-              className="bg-red-500 hover:bg-red-700 disabled:bg-gray-300 text-white font-bold py-2 px-4 rounded basis-1/2"
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded basis-1/2"
             >
-              Get a hint...
+              {invalidGuessIds.length >= MAX_TRIES - 1
+                ? "Give up..."
+                : "Get a hint..."}
             </button>
           </div>
           {invalidGuessIds.length > 0 && (
