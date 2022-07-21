@@ -179,7 +179,7 @@ function GuessAEmovi({
       <div className="flex flex-col items-center w-full">
         <p className="text-lg font-bold text-center">Guess this movie:</p>
         {emoviToGuess && (
-          <p className="text-xl text-center">
+          <p className="text-3xl text-center">
             <Twemoji
               text={emoviToGuess.emojiText}
               options={{ className: "inline-block" }}
@@ -387,12 +387,12 @@ function MakeAEmoviRoute() {
         )}
       </div>
       <div className="flex flex-col gap-1 items-center">
-        <div className="flex flex-col gap-2 justify-center items-center grow shrink-0 basis-24">
+        <div className="flex flex-col gap-2 justify-center items-center grow shrink-0 basis-32">
           <p className="text-xl text-center">
             {emojiText ? (
               <Twemoji
                 text={emojiText}
-                options={{ className: "inline-block" }}
+                options={{ className: "inline-block text-3xl" }}
               />
             ) : (
               <span> Describe movie with emoji!</span>
