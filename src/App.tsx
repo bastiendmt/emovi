@@ -12,6 +12,8 @@ import { Link, Navigate, Route, Routes, useParams } from "react-router-dom";
 import Select from "react-select";
 import { DateTime, Interval } from "luxon";
 
+const GUESSES_KEY = "guesses";
+
 function buildShareUrl(emoviToGuess: EmoviToGuess) {
   const encodedEmovi = encodeURIComponent(
     base64.encode(utf8.encode(JSON.stringify(emoviToGuess)))
@@ -68,9 +70,52 @@ function getSavedGuesses() {
   const guesses: Record<
     string,
     { movieGuessed: boolean; invalidGuessIds: string[] } | undefined
-  > = JSON.parse(localStorage.getItem("guesses") ?? "{}");
+  > = JSON.parse(localStorage.getItem(GUESSES_KEY) ?? "{}");
 
   return guesses;
+}
+
+function getStats() {
+  const allGuesses = getSavedGuesses();
+
+  const streakBonus: Record<string, number> = {
+    "2022-07-17": 0,
+    "2022-07-18": 1,
+    "2022-07-19": 2,
+    "2022-07-20": 3,
+    "2022-07-21": 4,
+  };
+
+  const days = Object.keys(allGuesses);
+  let currentStreak = days.length > 0 ? streakBonus[days[0]] ?? 0 : 0;
+  console.log({ currentStreak, days, streakBonus });
+  let maxStreak = 0;
+  let previousDate: DateTime | undefined;
+  for (const [dayString, guesses] of Object.entries(allGuesses)) {
+    const currentDate = DateTime.fromFormat(dayString, "yyyy-MM-dd");
+    if (guesses!.movieGuessed) {
+      if (
+        previousDate == null ||
+        previousDate.plus({ days: 1 }).hasSame(currentDate, "day")
+      ) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
+    } else {
+      currentStreak = 0;
+    }
+
+    if (currentStreak > maxStreak) {
+      maxStreak = currentStreak;
+    }
+    previousDate = currentDate;
+  }
+
+  return {
+    currentStreak,
+    maxStreak,
+  };
 }
 
 function GuessAEmovi({
@@ -133,6 +178,8 @@ function GuessAEmovi({
     }
   }, [emoviToGuess, selectedOption]);
 
+  const [stats, setStats] = useState(getStats());
+
   useEffect(() => {
     if (!dayString) {
       return;
@@ -150,7 +197,8 @@ function GuessAEmovi({
     guesses[dayString]!.movieGuessed = movieGuessed;
     guesses[dayString]!.invalidGuessIds = invalidGuessIds;
 
-    localStorage.setItem("guesses", JSON.stringify(guesses));
+    localStorage.setItem(GUESSES_KEY, JSON.stringify(guesses));
+    setStats(getStats());
   }, [dayString, invalidGuessIds, movieGuessed]);
 
   const shareText = useMemo(() => {
@@ -300,6 +348,10 @@ function GuessAEmovi({
                 Go to the daily Emovi
               </Link>
             )}
+          </div>
+          <div className="py-4 font-bold">
+            Current streak: {stats.currentStreak} - Max streak:{" "}
+            {stats.maxStreak}
           </div>
         </div>
       )}
