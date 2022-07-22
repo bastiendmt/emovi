@@ -319,7 +319,7 @@ function GuessAEmovi({
                 <p>In {invalidGuessIds.length + 1} guesses!</p>
               </>
             ) : (
-              <p>You didn't found the movie...</p>
+              <p>You failed to guess the movie...</p>
             )}
           </div>
           <div className="flex flex-col gap-1 w-full">
