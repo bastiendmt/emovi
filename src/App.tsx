@@ -135,7 +135,6 @@ function getStats() {
 
   const days = Object.keys(allGuesses);
   let currentStreak = days.length > 0 ? streakBonus[days[0]] ?? 0 : 0;
-  console.log({ currentStreak, days, streakBonus });
   let maxStreak = 0;
   let previousDate: DateTime | undefined;
   for (const [dayString, guesses] of Object.entries(allGuesses)) {
@@ -178,7 +177,9 @@ function GuessAEmovi({
     return emoviToGuess && allMovies.find((m) => m.id === emoviToGuess.id);
   }, [emoviToGuess]);
 
-  console.log("emoviToGuess", emoviToGuess);
+  useEffect(() => {
+    console.log(emoviToGuess);
+  }, [emoviToGuess]);
 
   const selectOptions = useMemo(() => {
     return allMovies.map((m) => ({
