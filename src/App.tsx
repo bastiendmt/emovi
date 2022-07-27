@@ -260,10 +260,11 @@ function GuessAEmovi({
       "🟥".repeat(invalidGuessIds.length) +
         (movieGuessed ? "🟩" : "") +
         "⬜".repeat(Math.max(MAX_TRIES - invalidGuessIds.length - 1, 0)),
-      buildShareUrl(emoviToGuess),
+      dayString ? window.location.origin : buildShareUrl(emoviToGuess),
     ].join("\n");
   }, [
     dailyNumber,
+    dayString,
     emoviToGuess,
     invalidGuessIds.length,
     movieGuessed,
