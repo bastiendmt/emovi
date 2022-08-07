@@ -3,9 +3,20 @@ import * as base64 from "base-64";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import { DateTime, Interval } from "luxon";
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from "lz-string";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { Link, Navigate, Route, Routes, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import Select from "react-select";
 import { Flip, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,10 +25,16 @@ import { allMovies, Movie, pickRandomMovie } from "./movies";
 
 const GUESSES_KEY = "guesses";
 
+function decode(s: string) {
+  return JSON.parse(utf8.decode(base64.decode(decodeURIComponent(s))));
+}
+
+function encode(o: any) {
+  return encodeURIComponent(base64.encode(utf8.encode(JSON.stringify(o))));
+}
+
 function buildShareUrl(emoviToGuess: EmoviToGuess) {
-  const encodedEmovi = encodeURIComponent(
-    base64.encode(utf8.encode(JSON.stringify(emoviToGuess)))
-  );
+  const encodedEmovi = encode(emoviToGuess);
   return `${window.location.origin}/guess/${encodedEmovi}`;
 }
 
@@ -415,6 +432,18 @@ function GuessAEmovi({
 }
 
 function DailyEmoviRoute() {
+  const migrationUrl = useMemo(() => {
+    if (window.location.hostname !== "localhost") {
+      return null;
+    }
+    const guesses = localStorage.getItem("guesses");
+    if (!guesses) {
+      return null;
+    }
+    const compressedGuesses = compressToEncodedURIComponent(guesses);
+    return `https://play.emovi.fun/import/${compressedGuesses}`;
+  }, []);
+
   const dayString = getDayString();
   const dailyNumber =
     Interval.fromDateTimes(START_DATE, DateTime.fromISO(dayString)).length(
@@ -577,12 +606,7 @@ const MAX_TRIES = 3;
 function GuessAEmoviRoute() {
   const { emovi: encodedEmovi } = useParams<{ emovi: string }>();
   const emoviToGuess: EmoviToGuess | undefined = useMemo(
-    () =>
-      encodedEmovi
-        ? JSON.parse(
-            utf8.decode(base64.decode(decodeURIComponent(encodedEmovi)))
-          )
-        : undefined,
+    () => (encodedEmovi ? decode(encodedEmovi) : undefined),
     [encodedEmovi]
   );
   const dayString = getDayString();
@@ -602,6 +626,26 @@ function GuessAEmoviRoute() {
   ) : (
     <div>Oops...</div>
   );
+}
+
+function ImportSaveRoute() {
+  const navigate = useNavigate();
+  const { save: encodedSave } = useParams<{ save: string }>();
+  useEffect(() => {
+    if (!encodedSave) {
+      return;
+    }
+
+    const save = decompressFromEncodedURIComponent(encodedSave);
+    if (!save) {
+      return;
+    }
+
+    localStorage.setItem(GUESSES_KEY, save);
+    navigate("/");
+  }, [encodedSave, navigate]);
+
+  return null;
 }
 
 function App() {
@@ -633,6 +677,7 @@ function App() {
             <Route path="/" element={<DailyEmoviRoute />} />
             <Route path="/make" element={<MakeAEmoviRoute />} />
             <Route path="/guess/:emovi" element={<GuessAEmoviRoute />} />
+            <Route path="/import/:save" element={<ImportSaveRoute />} />
           </Routes>
         </div>
         <footer className="flex justify-center flex-col mt-8 mb-4 gap-2">
