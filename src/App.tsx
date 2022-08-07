@@ -402,10 +402,12 @@ function GuessAEmovi({
               </Link>
             )}
           </div>
-          <div className="py-4 font-bold">
-            Current streak: {stats.currentStreak} - Max streak:{" "}
-            {stats.maxStreak}
-          </div>
+          {dayString && (
+            <div className="py-4 font-bold">
+              Current streak: {stats.currentStreak} - Max streak:{" "}
+              {stats.maxStreak}
+            </div>
+          )}
         </div>
       )}
     </div>
