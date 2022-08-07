@@ -1,16 +1,16 @@
 import { Twemoji } from "@teuteuf/react-emoji-render";
-import { Movie, pickRandomMovie, allMovies } from "./movies";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import * as base64 from "base-64";
 import { Picker } from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
-import * as base64 from "base-64";
-import * as utf8 from "utf8";
+import { DateTime, Interval } from "luxon";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { Flip, toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Link, Navigate, Route, Routes, useParams } from "react-router-dom";
 import Select from "react-select";
-import { DateTime, Interval } from "luxon";
+import { Flip, toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import * as utf8 from "utf8";
+import { allMovies, Movie, pickRandomMovie } from "./movies";
 
 const GUESSES_KEY = "guesses";
 
@@ -211,8 +211,10 @@ function GuessAEmovi({
   const handleGetHint = useCallback(() => {
     setInvalidGuessIds((prev) => [...prev, ""]);
   }, []);
+  const selectMovieRef = useRef<any>(null);
   const handleGuess = useCallback(() => {
     if (!selectedOption) {
+      selectMovieRef.current?.focus();
       return;
     }
 
@@ -300,22 +302,24 @@ function GuessAEmovi({
       {!movieGuessed && !movieFailed ? (
         <div className="flex flex-col gap-4 items-center w-full">
           <Select
+            ref={selectMovieRef}
+            openMenuOnFocus
+            openMenuOnClick
             className="w-full"
             options={selectOptions}
             onChange={setSelectedOption}
             value={selectedOption}
           />
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-row-reverse gap-2 w-full ">
             <button
               onClick={handleGuess}
-              disabled={!selectedOption}
-              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-4 px-4 rounded basis-1/2"
+              className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-300 text-white font-bold py-4 px-4 rounded basis-2/3"
             >
               Guess! ({invalidGuessIds.length + 1} / {MAX_TRIES})
             </button>
             <button
               onClick={handleGetHint}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded basis-1/2"
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-4 px-4 rounded basis-1/3"
             >
               {invalidGuessIds.length >= MAX_TRIES - 1
                 ? "Give up..."
