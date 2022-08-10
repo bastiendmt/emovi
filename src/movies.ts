@@ -218,8 +218,8 @@ const top250movies = [
   {
     id: "tt0114369",
     rank: "19",
-    title: "Se7en",
-    fullTitle: "Se7en (1995)",
+    title: "Seven",
+    fullTitle: "Seven (1995)",
     year: "1995",
     image:
       "https://imdb-api.com/images/original/MV5BOTUwODM5MTctZjczMi00OTk4LTg3NWUtNmVhMTAzNTNjYjcyXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_Ratio0.6716_AL_.jpg",
